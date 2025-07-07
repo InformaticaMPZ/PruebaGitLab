@@ -1,0 +1,13 @@
+stages:
+  - deploy
+
+deploy_to_remote:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh sshpass
+  script:
+    - echo "Copiando archivos al servidor remoto..."
+    - sshpass -p 'Suhuty1931' scp -o StrictHostKeyChecking=no -r ./ odoo@172.19.0.37:/opt/odoo/mpz/extra-addons
+  only:
+    - main  # o la rama que quieras
