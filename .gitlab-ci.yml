@@ -7,6 +7,9 @@ deploy_to_remote:
   before_script:
     # Instala sshpass y openssh-client
     - apk add --no‑cache openssh-client sshpass
+  tags:
+    - shell
+    - deploy
   script:
     - echo "Desplegando al servidor remoto..."
     - sshpass -p "$ODOO_PASSWORD" scp \
