@@ -8,7 +8,7 @@ deploy_to_remote:
     # Instala sshpass y openssh-client
     - apk add --no‑cache openssh-client sshpass
   tags:
-    - GitLab_Runner
+    - "GitLab_Runner"
   script:
     - echo "Desplegando al servidor remoto..."
     - sshpass -p "$ODOO_PASSWORD" scp \
