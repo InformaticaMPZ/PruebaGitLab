@@ -4,15 +4,10 @@ stages:
 build-job:
   stage: build
   tags:
-    - GitLabRunner # Asegúrate de que tenga esta etiqueta que es del runner general
-  before_script:
-    - apt-get update -y
-    - apt-get install -y openssh-client sshpass
+    - GitLabRunner  # Asegúrate de que esta etiqueta coincida con la del runner
   script:
     - echo "Creando archivo de prueba..."
-    - sshpass -p "$ODOO_PASSWORD" scp \
-        -o StrictHostKeyChecking=no \
-        -r ./* \
-        "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
+    - ssh-keyscan -H 172.19.20.37 > known_hosts
+    - sshpass -p "$ODOO_PASSWORD" scp -o UserKnownHostsFile=known_hosts README.md "$ODOO_USER@$ODOO_HOST:$DEST_PATH/README.md"
   only:
     - main
