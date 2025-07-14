@@ -7,7 +7,7 @@ build-job:
     - GitLabRunner
   script:
     # - which sshpass || sudo apt-get update && sudo apt-get install -y sshpass
-    - ssh-keyscan -H 172.19.0.37 > known_hosts
-    - sshpass -p Suhuty1931 scp -v -o UserKnownHostsFile=known_hosts README.md odoo@172.19.0.37:/opt/odoo/mpz/extra-addons/README.md
+    - ssh-keyscan -H 172.19.20.37 > known_hosts
+    - sshpass -p Suhuty1931 scp -v -o UserKnownHostsFile=known_hosts README.md odoo@172.19.20.37:/opt/odoo/mpz/extra-addons/README.md
   only:
     - main
