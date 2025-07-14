@@ -3,6 +3,8 @@ stages:
 
 build-job:
   stage: build
+  tags:
+    - GitLabRunner
   script:
     - echo "Creando archivo de prueba..."
     - echo "Este es un archivo de prueba." > test_file.txt from input
