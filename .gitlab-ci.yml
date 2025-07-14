@@ -9,14 +9,15 @@
 #     - echo "Creando archivo de prueba..."
 #     - echo "Este es un archivo de prueba." > test_file.txt from input
 #     - echo "Archivo creado exitosamente. de nuevo  a ver si usa la instancia correcta"
-
+image: alpine:latest
 stages:
   - build
 
 deploy_to_remote:
   stage: build
   before_script:
-    # Instala sshpass y openssh-client
+    - uname -a
+    - cat /etc/os-release
     - apk add --no‑cache openssh-client sshpass
   tags:
     - GitLabRunner
