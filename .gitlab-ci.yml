@@ -57,7 +57,8 @@ release-job:
     BUILD_JOB_ID: $CI_JOB_ID_BUILD_JOB
   before_script:
     - apk add --no-cache jq curl
-    - export BUILD_JOB_ID=$(curl -s --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/jobs" | jq -r '.[] | select(.name=="build-job") | .id')
-    - if [ -z "$BUILD_JOB_ID" ]; then echo "Error: Could not fetch build-job ID"; exit 1; fi
+    - |
+      export BUILD_JOB_ID=$(curl -s --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/jobs" | jq -r '.[] | select(.name=="build-job") | .id')
+      if [ -z "$BUILD_JOB_ID" ]; then echo "Error: Could not fetch build-job ID"; exit 1; fi
   only:
     - main
