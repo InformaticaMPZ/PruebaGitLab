@@ -37,13 +37,12 @@ deploy-staging:
 # Job que crea el release
 release-job:
   stage: release
-  tags:
-    - GitLabRunner
-  script: echo "Creando release desde CI/CD"
+  script:
+    - echo "Creando release desde CI/CD"
   release:
     tag_name: "v1.0.${CI_PIPELINE_ID}"
     name: "Staging Release v1.0.${CI_PIPELINE_ID}"
-    description: "Despliegue automático a staging desde el pipeline `${CI_PIPELINE_ID}`"
+    description: "Despliegue automático a staging desde el pipeline ${CI_PIPELINE_ID}"
     ref: main
     assets:
       links:
@@ -51,3 +50,4 @@ release-job:
           url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/dist/prueba_module.txt"
   only:
     - main
+
