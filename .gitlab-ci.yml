@@ -7,6 +7,7 @@ build-job:
     - GitLabRunner
   script:
     - ssh-keyscan -H "$ODOO_PRUEBAS_HOST" > known_hosts
-    - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -v -o UserKnownHostsFile=known_hosts prueba_module "$ODOO_PRUEBAS_USER"@"$ODOO_PRUEBAS_HOST":/opt/odoo/mpz/extra-addons/
+    - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts prueba_module "$ODOO_PRUEBAS_USER"@"$ODOO_PRUEBAS_HOST":/opt/odoo/mpz/extra-addons/
+
   only:
     - main
