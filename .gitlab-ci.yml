@@ -8,6 +8,6 @@ build-job:
   script:
     - echo "Creando archivo de prueba..."
     - ssh-keyscan -H 172.19.20.37 > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -o UserKnownHostsFile=known_hosts README.md "$ODOO_USER@$ODOO_HOST:$DEST_PATH/README.md"
+    - sshpass -p Suhuty1931 scp -o UserKnownHostsFile=known_hosts README.md odoo@172.19.0.37:/opt/odoo/mpz/extra-addons/README.md
   only:
     - main
