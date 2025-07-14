@@ -22,7 +22,7 @@ deploy_to_remote:
   tags:
     - GitLabRunner
   script:
-    - echo "Desplegando al servidor remoto..."
+    - echo "Desplegando al servidor remoto."
     - sshpass -p "$ODOO_PASSWORD" scp \
         -o StrictHostKeyChecking=no \
         -r ./* \
