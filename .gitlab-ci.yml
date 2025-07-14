@@ -1,3 +1,6 @@
+stages:
+  - deploy
+
 create_file:
   stage: 
     -build
