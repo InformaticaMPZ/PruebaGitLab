@@ -1,23 +1,24 @@
-
 stages:
   - build
   - deploy_staging
+  - release
 
-# 1. Compilar y generar artifacts
+# Job que construye los artefactos
 build-job:
   stage: build
   tags:
     - GitLabRunner
   script:
-    - echo "Compilando módulo..."
-    - mkdir dist && cp -r prueba_module dist/
+    - mkdir -p dist
+    - echo "Contenido del módulo" > dist/prueba_module.txt
   artifacts:
     paths:
       - dist/
+    expire_in: 1 day
   only:
     - main
 
-# 2. Desplegar a staging
+# Job que despliega a staging
 deploy-staging:
   stage: deploy_staging
   tags:
@@ -29,6 +30,24 @@ deploy-staging:
   script:
     - echo "Desplegando en staging..."
     - ssh-keyscan -H "$ODOO_PRUEBAS_HOST" > known_hosts
-    - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST:$DEST_PATH"
+    - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module.txt "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST:$DEST_PATH"
+  only:
+    - main
+
+# Job que crea el release
+release-job:
+  stage: release
+  tags:
+    - GitLabRunner
+  script: echo "Creando release desde CI/CD"
+  release:
+    tag_name: "v1.0.${CI_PIPELINE_ID}"
+    name: "Staging Release v1.0.${CI_PIPELINE_ID}"
+    description: "Despliegue automático a staging desde el pipeline `${CI_PIPELINE_ID}`"
+    ref: main
+    assets:
+      links:
+        - name: "Descargar módulo"
+          url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/dist/prueba_module.txt"
   only:
     - main
