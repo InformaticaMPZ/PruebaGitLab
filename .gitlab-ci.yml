@@ -6,7 +6,7 @@ build-job:
   tags:
     - GitLabRunner
   script:
-    # - which sshpass || sudo apt-get update && sudo apt-get install -y sshpass
+    - echo "$ODOO_PRUEBAS_HOST"
     - ssh-keyscan -H "$ODOO_PRUEBAS_HOST" > known_hosts
     - sshpass -p 'Suhuty1931' scp -v -o UserKnownHostsFile=known_hosts prueba_module mpzadmin@"$ODOO_PRUEBAS_HOST":/opt/odoo/mpz/extra-addons/prueba_module
   only:
