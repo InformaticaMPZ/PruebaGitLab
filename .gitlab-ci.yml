@@ -1,9 +1,8 @@
 stages:
-  - deploy
+  - build
 
-create_file:
-  stage: 
-    -build
+build-job:
+  stage: build
   script:
     - echo "Creando archivo de prueba..."
     - echo "Este es un archivo de prueba." > test_file.txt from input
