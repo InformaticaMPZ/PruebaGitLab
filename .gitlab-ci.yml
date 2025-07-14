@@ -8,7 +8,7 @@ build-job:
   script:
     - echo "Creando archivo de prueba..."
     - echo "Este es un archivo de prueba." > test_file.txt from input
-    - echo "Archivo creado exitosamente. de nuevo"
+    - echo "Archivo creado exitosamente. de nuevo  a ver si usa la instancia correcta"
 
 # stages:
 #   - deploy
