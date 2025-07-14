@@ -1,6 +1,7 @@
 stages:
   - build
   - deploy_staging
+  - deploy_production
 
 # 1. Compilar y generar artifacts
 build-job:
@@ -23,7 +24,7 @@ deploy-staging:
     name: staging
   script:
     - echo "Desplegando en staging..."
-    - ssh-keyscan -H "$STAGING_HOST" > known_hosts
-    - sshpass -p "$STAGING_PASS" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$STAGING_USER@$STAGING_HOST:$STAGING_PATH"
+    - ssh-keyscan -H "$ODOO_PRUEBAS_HOST" > known_hosts
+    - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST:$DEST_PATH"
   only:
     - main
