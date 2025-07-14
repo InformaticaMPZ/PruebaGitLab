@@ -6,8 +6,8 @@ build-job:
   tags:
     - GitLabRunner # Asegúrate de que tenga esta etiqueta que es del runner general
   before_script:
-    - sudo apt-get update -y
-    - sudo apt-get install -y openssh-client sshpass
+    - apt-get update -y
+    - apt-get install -y openssh-client sshpass
   script:
     - echo "Creando archivo de prueba..."
     - sshpass -p "$ODOO_PASSWORD" scp \
