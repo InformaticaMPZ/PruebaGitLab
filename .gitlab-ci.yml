@@ -48,6 +48,6 @@ release-job:
     assets:
       links:
         - name: "Descargar módulo"
-          url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/dist/prueba_module.txt"
+          url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts?file_type=archive"
   only:
     - main
