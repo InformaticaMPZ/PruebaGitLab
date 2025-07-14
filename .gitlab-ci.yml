@@ -1,31 +1,30 @@
+# stages:
+#   - build
+
+# build-job:
+#   stage: build
+#   tags:
+#     - GitLabRunner # Asegúrate de que tenga esta etiqueta que es del runner general
+#   script:
+#     - echo "Creando archivo de prueba..."
+#     - echo "Este es un archivo de prueba." > test_file.txt from input
+#     - echo "Archivo creado exitosamente. de nuevo  a ver si usa la instancia correcta"
+
 stages:
   - build
 
-build-job:
+deploy_to_remote:
   stage: build
+  before_script:
+    # Instala sshpass y openssh-client
+    - apk add --no‑cache openssh-client sshpass
   tags:
     - GitLabRunner
   script:
-    - echo "Creando archivo de prueba..."
-    - echo "Este es un archivo de prueba." > test_file.txt from input
-    - echo "Archivo creado exitosamente. de nuevo  a ver si usa la instancia correcta"
-
-# stages:
-#   - deploy
-
-# deploy_to_remote:
-#   stage: deploy
-#   image: alpine:latest
-#   before_script:
-#     # Instala sshpass y openssh-client
-#     - apk add --no‑cache openssh-client sshpass
-#   tags:
-#     - GitLab Runner
-#   script:
-#     - echo "Desplegando al servidor remoto..."
-#     - sshpass -p "$ODOO_PASSWORD" scp \
-#         -o StrictHostKeyChecking=no \
-#         -r ./* \
-#         "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
-#   only:
-#     - main
+    - echo "Desplegando al servidor remoto..."
+    - sshpass -p "$ODOO_PASSWORD" scp \
+        -o StrictHostKeyChecking=no \
+        -r ./* \
+        "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
+  only:
+    - main
