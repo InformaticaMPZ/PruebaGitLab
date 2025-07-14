@@ -16,6 +16,8 @@ stages:
 
 deploy_to_remote:
   stage: build
+  tags:
+    - GitLabRunner
   before_script:
     - apt-get update -y
     - apt-get install -y openssh-client sshpass
