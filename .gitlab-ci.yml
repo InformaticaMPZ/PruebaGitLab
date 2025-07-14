@@ -17,6 +17,9 @@ build-job:
   stage: build
   tags:
     - GitLabRunner # Asegúrate de que tenga esta etiqueta que es del runner general
+  before_script:
+    - sudo apt-get update -y
+    - sudo apt-get install -y openssh-client sshpass
   script:
     - echo "Creando archivo de prueba..."
     - echo "Este es un archivo de prueba." > test_file.txt from input
@@ -35,9 +38,9 @@ build-job:
 #   stage: build
 #   tags:
 #     - GitLabRunner
-#   # before_script:
-#   #   - sudo apt-get update -y
-#   #   - sudo apt-get install -y openssh-client sshpass
+  # before_script:
+  #   - sudo apt-get update -y
+  #   - sudo apt-get install -y openssh-client sshpass
 #   script:
 #     - echo "Desplegando al servidor remoto..."
 #     - sshpass -p "$ODOO_PASSWORD" scp \
