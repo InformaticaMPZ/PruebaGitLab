@@ -42,7 +42,7 @@ release-job:
 
   # 1. Install curl and fetch release-cli
   before_script:
-    - apt-get update && apt-get install -y curl
+    - sudo apt-get update && sudo apt-get install -y curl
     - |
       curl -L --header "JOB-TOKEN: $CI_JOB_TOKEN" \
            "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/releases/download-cli" \
