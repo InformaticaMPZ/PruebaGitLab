@@ -10,7 +10,7 @@ build-job:
   tags:
     - GitLabRunner
   script:
-    - mkdir dist && cp -r dist
+    - mkdir dist && cp -r prueba_module dist/
   artifacts:
     paths:
       - dist/
