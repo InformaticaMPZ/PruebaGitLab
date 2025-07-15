@@ -41,6 +41,9 @@ release-job:
     - GitLabRunner
   script:
     - echo "Creando release desde CI/CD"
+    - echo  "$CI_JOB_ID"
+    - echo "$CI_PIPELINE_ID"
+    - echo "$CI_PIPELINE_IID"
   release:
     tag_name: "v1.0.$CI_PIPELINE_ID"
     name: "Staging Release v1.0.$CI_PIPELINE_ID"
@@ -49,8 +52,7 @@ release-job:
     assets:
       links:
         - name: "Descargar módulo"
-          url: "${CI_PROJECT_URL}/-/pipelines/${CI_PIPELINE_ID}/jobs/artifacts/main/download?job=build-job"
-
+          url: "$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts?file_type=archive"
   only:
     - main
 
