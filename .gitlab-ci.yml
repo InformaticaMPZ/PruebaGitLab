@@ -14,9 +14,10 @@ build-job:
   artifacts:
     paths:
       - dist/
-    expire_in: 1 day
+    expire_in: 90 day
   only:
     - main
+    - dev
 
 # Job que despliega a staging
 deploy-staging:
@@ -28,7 +29,6 @@ deploy-staging:
   environment:
     name: staging
   script:
-    - echo "Desplegando en staging...1.2"
     - ssh-keyscan -H "$ODOO_PRUEBAS_HOST" > known_hosts
     - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module.txt "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST:$DEST_PATH"
     - sshpass -p "$ODOO_RRUEBAS_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST" "sudo -n /usr/bin/systemctl restart odoo"
@@ -40,7 +40,7 @@ deploy-staging:
       fi"   
 
   only:
-    - main
+    - dev
 
 # Job que crea el release
 release-job:
@@ -52,12 +52,12 @@ release-job:
 
   release:
     tag_name: "v1.0.$CI_PIPELINE_ID"
-    name: "Staging Release v1.0.$CI_PIPELINE_ID"
+    name: "Pruebas Release: v1.0.$CI_PIPELINE_ID"
     description: "Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID"
-    ref: "main"
+    ref: "dev"
     assets:
       links:
         - name: "Descargar módulo"
           url: "$CI_PROJECT_URL/-/jobs/$((CI_JOB_ID-2))/artifacts/download?file_type=archive"
   only:
-    - main
+    - dev
