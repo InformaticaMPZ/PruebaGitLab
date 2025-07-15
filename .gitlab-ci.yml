@@ -32,7 +32,7 @@ deploy_test:
     name: test
   script:
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module.txt "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
+    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
       sudo -n /usr/bin/systemctl status odoo --no-pager;
@@ -55,7 +55,7 @@ deploy-production:
     name: production
   script:
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module.txt "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
+    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
       sudo -n /usr/bin/systemctl status odoo --no-pager;
