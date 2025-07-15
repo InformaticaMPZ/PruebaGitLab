@@ -55,3 +55,40 @@ release-job:
 
 
 
+
+# release-job:
+#   stage: release
+#   tags:
+#     - GitLabRunner
+
+#   script:
+#     # 1) Notify
+#     - echo "Creando release desde CI/CD"
+
+#     # 2) POST to the Releases API with a here‑doc
+#     - |
+#       curl --fail --request POST \
+#            --header "Content-Type: application/json" \
+#            --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+#            --data @- "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases" <<EOF
+#       {
+#         "name":        "Staging Release v1.0.${CI_PIPELINE_ID}",
+#         "tag_name":    "v1.0.${CI_PIPELINE_ID}",
+#         "description": "Despliegue automático a staging desde el pipeline ${CI_PIPELINE_ID}",
+#         "ref":         "main",
+#         "assets": {
+#           "links": [
+#             {
+#               "name": "Descargar módulo",
+#               "url":  "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts?file_type=archive"
+#             }
+#           ]
+#         }
+#       }
+#       EOF
+
+#   only:
+#     - main
+
+
+
