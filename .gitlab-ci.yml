@@ -32,7 +32,7 @@ deploy-staging:
     - ssh-keyscan -H "$ODOO_PRUEBAS_HOST" > known_hosts
     - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module.txt "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST:$DEST_PATH"
     # - sshpass -p "$ODOO_PRUEBAS_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=known_hosts "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST" 'sudo /usr/bin/systemctl restart odoo'
-    - sshpass -p "$ODOO_PRUEBAS_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=known_hosts "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST" "echo '$ODOO_PRUEBAS_PASSWORD' | sudo -S /usr/bin/systemctl status odoo"
+    - sshpass -p "$ODOO_PRUEBAS_PASSWORD" ssh -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=known_hosts "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST" "sudo /usr/bin/systemctl status odoo"
     # - sshpass -p "$ODOO_PRUEBAS_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=known_hosts "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST" 'sudo /usr/bin/systemctl status odoo --no-pager'
 
   only:
