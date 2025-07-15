@@ -41,16 +41,20 @@ release-job:
     - GitLabRunner
 
   script:
+    # 1) Notify
     - echo "Creando release desde CI/CD"
 
-    # 1) Build the JSON payload for the release
+    # 2) POST to the Releases API with a here‑doc
     - |
-      read -r -d '' PAYLOAD <<EOF
+      curl --fail --request POST \
+           --header "Content-Type: application/json" \
+           --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --data @- "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases" <<EOF
       {
-        "name":      "Staging Release v1.0.${CI_PIPELINE_ID}",
-        "tag_name":  "v1.0.${CI_PIPELINE_ID}",
+        "name":        "Staging Release v1.0.${CI_PIPELINE_ID}",
+        "tag_name":    "v1.0.${CI_PIPELINE_ID}",
         "description": "Despliegue automático a staging desde el pipeline ${CI_PIPELINE_ID}",
-        "ref":       "main",
+        "ref":         "main",
         "assets": {
           "links": [
             {
@@ -62,15 +66,8 @@ release-job:
       }
       EOF
 
-    # 2) POST it to the GitLab Releases API
-    - |
-      curl --fail --request POST \
-           --header "Content-Type: application/json" \
-           --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-           --data "$PAYLOAD" \
-           "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases"
-
   only:
     - main
+
 
 
