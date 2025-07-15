@@ -50,9 +50,6 @@ release-job:
     assets:
       links:
         - name: "Descargar módulo"
-          url: "$CI_PROJECT_URL/-/jobs/$((CI_JOB_ID-2))/artifacts?file_type=archive"
+          url: "$CI_PROJECT_URL/-/jobs/$((CI_JOB_ID-2))/artifacts/download?file_type=archive"
   only:
     - main
-
-
-
