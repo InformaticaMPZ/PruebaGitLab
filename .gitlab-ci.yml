@@ -37,13 +37,15 @@ deploy-staging:
 # Job que crea el release
 release-job:
   stage: release
-  tags: [GitLabRunner]
-
-  variables:
-    GITLAB_TOKEN: $RELEASE_CLI_TOKEN
+  tags:
+    - GitLabRunner
 
   script:
     - echo "Creando release…"
+    # export so release-cli sees it
+    - export GITLAB_TOKEN="$RELEASE_CLI_TOKEN"
+
+    # now the release block will work
   release:
     tag_name:    "v1.0.${CI_PIPELINE_ID}"
     name:        "Staging Release v1.0.${CI_PIPELINE_ID}"
@@ -56,6 +58,7 @@ release-job:
 
   only:
     - main
+
 
 
 
