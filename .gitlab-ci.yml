@@ -1,6 +1,7 @@
 stages:
   - build
-  - deploy_staging
+  - deploy_test
+  - deploy_production
   - release
 
 # Job que construye los artefactos
@@ -10,7 +11,7 @@ build-job:
     - GitLabRunner
   script:
     - mkdir -p dist
-    - echo "Contenido del módulo de" > dist/prueba_module.txt
+    - echo "Contenido del módulo" > dist/prueba_module.txt
   artifacts:
     paths:
       - dist/
@@ -20,15 +21,15 @@ build-job:
       - main
       - dev
 
-# Job que despliega a staging
-deploy-staging:
-  stage: deploy_staging
+# Job que despliega a testing (solo manual en rama dev)
+deploy_test:
+  stage: deploy_test
   tags:
     - GitLabRunner
   dependencies:
     - build-job
   environment:
-    name: staging
+    name: test
   script:
     - ssh-keyscan -H "$ODOO_PRUEBAS_HOST" > known_hosts
     - sshpass -p "$ODOO_RRUEBAS_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module.txt "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST:$DEST_PATH"
@@ -36,24 +37,47 @@ deploy-staging:
     - sshpass -p "$ODOO_RRUEBAS_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_PRUEBAS_USER@$ODOO_PRUEBAS_HOST" "
       sudo -n /usr/bin/systemctl status odoo --no-pager;
       if ! systemctl is-active --quiet odoo; then
-       echo 'Odoo NO está corriendo en el servidor de pruebas';
-       exit 1;
-      fi"   
-
+        echo 'Odoo NO está corriendo en el servidor de pruebas';
+        exit 1;
+      fi"
   only:
-    - dev
+    refs:
+      - dev
 
-# Job que crea el release
+# Job que despliega a producción (automático en rama main)
+deploy-production:
+  stage: deploy_production
+  tags:
+    - GitLabRunner
+  dependencies:
+    - build-job
+  environment:
+    name: production
+  script:
+    - ssh-keyscan -H "$ODOO_PROD_HOST" > known_hosts
+    - sshpass -p "$ODOO_PROD_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module.txt "$ODOO_PROD_USER@$ODOO_PROD_HOST:$DEST_PATH"
+    - sshpass -p "$ODOO_PROD_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_PROD_USER@$ODOO_PROD_HOST" "sudo -n /usr/bin/systemctl restart odoo"
+    - sshpass -p "$ODOO_PROD_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_PROD_USER@$ODOO_PROD_HOST" "
+      sudo -n /usr/bin/systemctl status odoo --no-pager;
+      if ! systemctl is-active --quiet odoo; then
+        echo 'Odoo NO está corriendo en producción';
+        exit 1;
+      fi"
+  only:
+    refs:
+      - main
+  when: manual
+
+# Job que crea el release (solo en dev)
 release-job:
   stage: release
   tags:
     - GitLabRunner
   script:
     - echo "Creando release desde CI/CD"
-
   release:
     tag_name: "v1.0.$CI_PIPELINE_ID"
-    name: "Pruebas Release: v1.0.$CI_PIPELINE_ID"
+    name: "Release: v1.0.$CI_PIPELINE_ID"
     description: "Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID"
     ref: "dev"
     assets:
@@ -61,4 +85,7 @@ release-job:
         - name: "Descargar módulo"
           url: "$CI_PROJECT_URL/-/jobs/$((CI_JOB_ID-2))/artifacts/download?file_type=archive"
   only:
-    - dev
+    refs:
+      - main
+      - dev
+
