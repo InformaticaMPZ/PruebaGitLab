@@ -47,7 +47,6 @@ release-job:
            "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/releases/download-cli" \
            -o /usr/local/bin/release-cli
     - sudo chmod +x /usr/local/bin/release-cli
-    - sudo export PATH="$CI_PROJECT_DIR:$PATH"
 
   # 2. Your normal script steps
   script:
