@@ -1,7 +1,6 @@
 stages:
   - build
-  - deploy_test
-  - deploy_production
+  - deploy
   - release
 
 # Job que construye los artefactos
@@ -20,52 +19,41 @@ build-job:
       - main
       - dev
 
-# Job que despliega a testing (solo manual en rama dev)
-deploy_test:
-  stage: deploy_test
+deploy-job:
+  stage: deploy  # o deploy_production si quieres agruparlo ahí
   tags:
     - GitLabRunner
   dependencies:
     - build-job
   environment:
-    name: test
+    name: $DEPLOY_ENVIRONMENT  # Será "test" o "production" dependiendo de la rama
   script:
-    - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
-    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
-    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
-      sudo -n /usr/bin/systemctl status odoo --no-pager;
-      if ! systemctl is-active --quiet odoo; then
-        echo 'Odoo NO está corriendo en el servidor de pruebas';
-        exit 1;
-      fi"
+    - |
+      echo "Desplegando a entorno: $DEPLOY_ENVIRONMENT"
+      ssh-keyscan -H "$ODOO_HOST" > known_hosts
+      sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
+      sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
+      sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
+        sudo -n /usr/bin/systemctl status odoo --no-pager;
+        if ! systemctl is-active --quiet odoo; then
+          echo 'Odoo NO está corriendo en $DEPLOY_ENVIRONMENT';
+          exit 1;
+        fi"
   only:
     refs:
       - dev
-
-# Job que despliega a producción (automático en rama main)
-deploy-production:
-  stage: deploy_production
-  tags:
-    - GitLabRunner
-  dependencies:
-    - build-job
-  environment:
-    name: production
-  script:
-    - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$DEST_PATH"
-    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
-    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
-      sudo -n /usr/bin/systemctl status odoo --no-pager;
-      if ! systemctl is-active --quiet odoo; then
-        echo 'Odoo NO está corriendo en producción';
-        exit 1;
-      fi"
-  only:
-    refs:
       - main
   when: manual
+  before_script:
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "main" ]; then
+        export DEPLOY_ENVIRONMENT="production"
+      elif [ "$CI_COMMIT_REF_NAME" = "dev" ]; then
+        export DEPLOY_ENVIRONMENT="test"
+      else
+        echo "Rama no válida para despliegue"
+        exit 1
+      fi
 
 # Job que crea el release (solo en dev)
 release-job:
@@ -73,7 +61,7 @@ release-job:
   tags:
     - GitLabRunner
   dependencies:
-    - deploy-production
+    - deploy-job
   script:
     - echo "Creando release desde CI/CD"
   release:
