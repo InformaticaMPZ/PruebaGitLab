@@ -40,7 +40,7 @@ release-job:
   tags:
     - GitLabRunner
   script:
-    - echo "Creando release desde CI/CD"
+    - echo "Creando release desde CI/CD d"
   release:
     tag_name:    "v1.0.${CI_PIPELINE_ID}"
     name:        "Staging Release v1.0.${CI_PIPELINE_ID}"
