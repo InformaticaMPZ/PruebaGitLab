@@ -16,8 +16,9 @@ build-job:
       - dist/
     expire_in: 90 day
   only:
-    - main
-    - dev
+    refs:
+      - main
+      - dev
 
 # Job que despliega a staging
 deploy-staging:
