@@ -39,15 +39,32 @@ release-job:
   stage: release
   tags:
     - GitLabRunner
-  script: echo "Creando release desde CI/CD"
+
+  # 1. Install curl and fetch release-cli
+  before_script:
+    - apt-get update && apt-get install -y curl
+    - |
+      curl -L --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/releases/download-cli" \
+           -o /usr/local/bin/release-cli
+    - chmod +x /usr/local/bin/release-cli
+
+  # 2. Your normal script steps
+  script:
+    - echo "Creando release desde CI/CD"
+
+  # 3. Define the release metadata
   release:
-    tag_name: "v1.0.${CI_PIPELINE_ID}"
-    name: "Staging Release v1.0.${CI_PIPELINE_ID}"
-    description: "Despliegue automático a staging desde el pipeline `${CI_PIPELINE_ID}`"
-    ref: main
+    tag_name: "v1.0.$CI_PIPELINE_ID"
+    name:    "Staging Release v1.0.$CI_PIPELINE_ID"
+    # single‑quotes avoid back‑tick / command‑substitution issues
+    description: 'Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID'
+    ref:     main
     assets:
       links:
         - name: "Descargar módulo"
-          url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts?file_type=archive"
+          url:  "$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts?file_type=archive"
+
   only:
     - main
+
