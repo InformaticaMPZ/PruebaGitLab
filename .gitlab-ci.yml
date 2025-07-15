@@ -40,30 +40,37 @@ release-job:
   tags:
     - GitLabRunner
 
-  # 1. Install curl and fetch release-cli
-  before_script:
-    - |
-      sudo curl -L --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-           "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/releases/download-cli" \
-           -o /usr/local/bin/release-cli
-    - sudo chmod +x /usr/local/bin/release-cli
-
-  # 2. Your normal script steps
   script:
     - echo "Creando release desde CI/CD"
 
-  # 3. Define the release metadata
-  release:
-    tag_name: "v1.0.$CI_PIPELINE_ID"
-    name:    "Staging Release v1.0.$CI_PIPELINE_ID"
-    # single‑quotes avoid back‑tick / command‑substitution issues
-    description: 'Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID'
-    ref:     main
-    assets:
-      links:
-        - name: "Descargar módulo"
-          url:  "$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts?file_type=archive"
+    # 1) Build the JSON payload for the release
+    - |
+      read -r -d '' PAYLOAD <<EOF
+      {
+        "name":      "Staging Release v1.0.${CI_PIPELINE_ID}",
+        "tag_name":  "v1.0.${CI_PIPELINE_ID}",
+        "description": "Despliegue automático a staging desde el pipeline ${CI_PIPELINE_ID}",
+        "ref":       "main",
+        "assets": {
+          "links": [
+            {
+              "name": "Descargar módulo",
+              "url":  "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts?file_type=archive"
+            }
+          ]
+        }
+      }
+      EOF
+
+    # 2) POST it to the GitLab Releases API
+    - |
+      curl --fail --request POST \
+           --header "Content-Type: application/json" \
+           --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --data "$PAYLOAD" \
+           "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases"
 
   only:
     - main
+
 
