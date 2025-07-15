@@ -39,26 +39,19 @@ release-job:
   stage: release
   tags:
     - GitLabRunner
-
   script:
-    - echo "Creando release…"
-    # export so release-cli sees it
-    - export GITLAB_TOKEN="$RELEASE_CLI_TOKEN"
-
-    # now the release block will work
+    - echo "Creando release desde CI/CD"
   release:
-    tag_name:    "v1.0.${CI_PIPELINE_ID}"
-    name:        "Staging Release v1.0.${CI_PIPELINE_ID}"
-    description: "Despliegue automático desde pipeline ${CI_PIPELINE_ID}"
-    ref:         main
+    tag_name: "v1.0.$CI_PIPELINE_ID"
+    name: "Staging Release v1.0.$CI_PIPELINE_ID"
+    description: "Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID"
+    ref: "main"
     assets:
       links:
         - name: "Descargar módulo"
-          url:  "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts?file_type=archive"
-
+          url: "$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts?file_type=archive"
   only:
     - main
-
 
 
 
