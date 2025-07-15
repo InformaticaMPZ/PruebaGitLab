@@ -10,8 +10,7 @@ build-job:
   tags:
     - GitLabRunner
   script:
-    - mkdir -p dist
-    - echo "Contenido del módulo" > dist/prueba_module.txt
+    - mkdir dist && cp -r prueba_module dist/
   artifacts:
     paths:
       - dist/
