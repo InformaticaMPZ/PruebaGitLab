@@ -45,10 +45,6 @@ move-to-final-path:
   stage: deploy_test_job
   tags:
     - GitLabRunner
-
-  needs:
-    - job: deploy_test
-      artifacts: true
   environment:
     name: test
   script:
