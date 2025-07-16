@@ -2,6 +2,7 @@ stages:
   - build
   - deploy_test
   - deploy_production
+  - deploy_test_job
 
 # Job que construye los artefactos
 build-job:
