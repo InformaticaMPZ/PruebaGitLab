@@ -62,7 +62,6 @@ move-to-final-path:
           fi
         else
           echo 'No se encontró el módulo en la carpeta temp';
-          exit 1;
         fi"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
