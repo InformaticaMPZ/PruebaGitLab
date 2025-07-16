@@ -15,9 +15,13 @@ build-job:
     paths:
       - dist/
     expire_in: 90 day
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
-    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+  only:
+    refs:
+      - dev
+      - main
+  # rules:
+  #   - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
+  #   - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
 
 # Job que despliega a testing (solo manual en rama dev)
 deploy_test:
@@ -38,8 +42,11 @@ deploy_test:
         echo 'Odoo NO está corriendo en el servidor de pruebas';
         exit 1;
       fi"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
+  only:
+    refs:
+      - dev
+  # rules:
+  #   - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
 
 move-to-final-path:
   stage: deploy_test_job
@@ -56,12 +63,17 @@ move-to-final-path:
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
     - sshpass -p "$ODOO_PASSWORD" ssh -o UserKnownHostsFile=known_hosts "$ODOO_USER@$ODOO_HOST" "
         if [ -d '$ODOO_DEST_PATH/temp/prueba_module' ]; then
-          sudo mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
-          echo 'Módulo movido con éxito a destino final';
+          echo '$ODOO_PASSWORD' | sudo -S mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
+          if [ \$? -eq 0 ]; then
+            echo 'Módulo movido con éxito a destino final';
+          else
+            echo 'Error al mover el módulo';
+            exit 1;
+          fi
         else
           echo 'No se encontró el módulo en la carpeta temp';
           exit 1;
-         fi"
+        fi"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
