@@ -16,7 +16,7 @@ build-job:
     expire_in: 90 day
   only:
     refs:
-      # - main
+      - main
       - dev
 
 # Job que despliega a testing (solo manual en rama dev)
@@ -30,7 +30,7 @@ deploy_test:
     name: test
   script:
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH"
+    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH/temp"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
       sudo -n /usr/bin/systemctl status odoo --no-pager;
@@ -42,6 +42,25 @@ deploy_test:
     refs:
       - dev
 
+move-to-final-path:
+  stage: deploy_test
+  tags:
+    - GitLabRunner
+  environment:
+    name: test
+  script:
+    - ssh-keyscan -H "$ODOO_HOST" > known_hosts
+    - sshpass -p "$ODOO_PASSWORD" ssh -o UserKnownHostsFile=known_hosts "$ODOO_USER@$ODOO_HOST" "
+        if [ -d '$ODOO_DEST_PATH/temp/prueba_module' ]; then
+          sudo mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
+          echo 'Módulo movido con éxito a destino final';
+        else
+          echo 'No se encontró el módulo en temp';
+          exit 1;
+         fi"
+  only:
+    - schedules
+
 # Job que despliega a producción (automático en rama main)
 deploy-production:
   stage: deploy_production
@@ -52,8 +71,6 @@ deploy-production:
   environment:
     name: production
   script:
-    - ls -la dist/
-    - ls -la dist/prueba_module || echo "El módulo no existe"
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
     - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH/temp"
     
@@ -69,6 +86,3 @@ deploy-production:
   only:
     refs:
       - main
-
-
-
