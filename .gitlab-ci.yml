@@ -1,3 +1,6 @@
+variables:
+  MODULE_NAME: "prueba_module"
+
 stages:
   - build
   - deploy_test
@@ -10,7 +13,7 @@ build-job:
   tags:
     - GitLabRunner
   script:
-    - mkdir dist && cp -r prueba_module dist/
+    - mkdir dist && cp -r "$MODULE_NAME" dist/
   artifacts:
     paths:
       - dist/
@@ -30,7 +33,7 @@ deploy_test:
     name: test
   script:
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH"/temp
+    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/"$MODULE_NAME" "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH"/temp
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
       sudo -n /usr/bin/systemctl status odoo --no-pager;
@@ -41,20 +44,46 @@ deploy_test:
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
 
+
+# Job que despliega a producción (automático en rama main)
+deploy-production:
+  stage: deploy_production
+  tags:
+    - GitLabRunner
+  dependencies:
+    - build-job
+  environment:
+    name: production
+  script:
+    - ssh-keyscan -H "$ODOO_HOST" > known_hosts
+    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/"$MODULE_NAME" "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH/temp"
+    
+  release:
+    tag_name: "${CI_PROJECT_NAME}-v1.0.${CI_PIPELINE_ID}"
+    name: "Release: ${CI_PROJECT_NAME}-v1.0.${CI_PIPELINE_ID}"
+    description: "Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID"
+    ref: "main"
+    assets:
+      links:
+        - name: "Descargar módulo"
+          url: "$CI_PROJECT_URL/-/jobs/$((CI_JOB_ID-1))/artifacts/download?file_type=archive"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+
 move-to-final-path:
   stage: deploy_test_job
   tags:
     - GitLabRunner
   environment:
-    name: test
+    name: production
   script:
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
     - sshpass -p "$ODOO_PASSWORD" ssh -o UserKnownHostsFile=known_hosts "$ODOO_USER@$ODOO_HOST" "
-        if [ -d '$ODOO_DEST_PATH/temp/prueba_module' ]; then
-          echo '$ODOO_PASSWORD' | sudo -S mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
+        if [ -d '$ODOO_DEST_PATH/temp/$MODULE_NAME' ]; then
+          echo '$ODOO_PASSWORD' | sudo -S mv '$ODOO_DEST_PATH/temp/$MODULE_NAME' '$ODOO_DEST_PATH/';
           if [ \$? -eq 0 ]; then
             echo 'Módulo movido con éxito a destino final';
-            echo '$ODOO_PASSWORD' | sudo -S rm -rf '$ODOO_DEST_PATH/temp/prueba_module';
+            echo '$ODOO_PASSWORD' | sudo -S rm -rf '$ODOO_DEST_PATH/temp/$MODULE_NAME';
             echo 'Carpeta temp eliminada';
           else
             echo 'Error al mover el módulo';
@@ -72,28 +101,3 @@ move-to-final-path:
         fi"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
-# Job que despliega a producción (automático en rama main)
-deploy-production:
-  stage: deploy_production
-  tags:
-    - GitLabRunner
-  dependencies:
-    - build-job
-  environment:
-    name: production
-  script:
-    - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH/temp"
-    
-  release:
-    tag_name: "${CI_PROJECT_NAME}-v1.0.${CI_PIPELINE_ID}"
-    name: "Release: ${CI_PROJECT_NAME}-v1.0.${CI_PIPELINE_ID}"
-    description: "Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID"
-    ref: "main"
-    assets:
-      links:
-        - name: "Descargar módulo"
-          url: "$CI_PROJECT_URL/-/jobs/$((CI_JOB_ID-1))/artifacts/download?file_type=archive"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
