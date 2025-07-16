@@ -96,7 +96,7 @@ move-to-final-path:
     - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
         sudo -n /usr/bin/systemctl status odoo --no-pager;
         if ! systemctl is-active --quiet odoo; then
-          echo 'Odoo NO está corriendo en producción';
+          echo 'Odoo NO está corriendo en producción después del despliegue';
           exit 1;
         fi"
   rules:
