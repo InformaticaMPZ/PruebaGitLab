@@ -60,20 +60,22 @@ move-to-final-path:
   environment:
     name: test
   script:
-    - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" ssh -o UserKnownHostsFile=known_hosts "$ODOO_USER@$ODOO_HOST" "
-        if [ -d '$ODOO_DEST_PATH/temp/prueba_module' ]; then
-          echo '$ODOO_PASSWORD' | sudo -S mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
-          if [ \$? -eq 0 ]; then
-            echo 'Módulo movido con éxito a destino final';
-          else
-            echo 'Error al mover el módulo';
-            exit 1;
-          fi
+  - ssh-keyscan -H "$ODOO_HOST" > known_hosts
+  - sshpass -p "$ODOO_PASSWORD" ssh -o UserKnownHostsFile=known_hosts "$ODOO_USER@$ODOO_HOST" "
+      if [ -d '$ODOO_DEST_PATH/temp/prueba_module' ]; then
+        echo '$ODOO_PASSWORD' | sudo -S mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
+        if [ \$? -eq 0 ]; then
+          echo 'Módulo movido con éxito a destino final';
+          echo '$ODOO_PASSWORD' | sudo -S rm -rf '$ODOO_DEST_PATH/temp';
+          echo 'Carpeta temp eliminada';
         else
-          echo 'No se encontró el módulo en la carpeta temp';
+          echo 'Error al mover el módulo';
           exit 1;
-        fi"
+        fi
+      else
+        echo 'No se encontró el módulo en la carpeta temp';
+        exit 1;
+      fi"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
