@@ -76,6 +76,13 @@ move-to-final-path:
         echo 'No se encontró el módulo en la carpeta temp';
         exit 1;
       fi"
+    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
+    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
+      sudo -n /usr/bin/systemctl status odoo --no-pager;
+      if ! systemctl is-active --quiet odoo; then
+        echo 'Odoo NO está corriendo en producción';
+        exit 1;
+      fi"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
