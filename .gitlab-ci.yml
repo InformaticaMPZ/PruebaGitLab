@@ -15,10 +15,9 @@ build-job:
     paths:
       - dist/
     expire_in: 90 day
-  only:
-    refs:
-      - main
-      - dev
+  rules:
+      - if: '$CI_COMMIT_BRANCH == "dev"'
+      - if: '$CI_COMMIT_BRANCH == "main"'
 
 # Job que despliega a testing (solo manual en rama dev)
 deploy_test:
@@ -39,9 +38,8 @@ deploy_test:
         echo 'Odoo NO está corriendo en el servidor de pruebas';
         exit 1;
       fi"
-  only:
-    refs:
-      - dev
+  rules:
+      - if: '$CI_COMMIT_BRANCH == "dev"'
 
 move-to-final-path:
   stage: deploy_test_job
@@ -89,6 +87,5 @@ deploy-production:
       links:
         - name: "Descargar módulo"
           url: "$CI_PROJECT_URL/-/jobs/$((CI_JOB_ID-1))/artifacts/download?file_type=archive"
-  only:
-    refs:
-      - main
+  rules:
+      - if: '$CI_COMMIT_BRANCH == "main"'
