@@ -14,14 +14,10 @@ build-job:
     paths:
       - dist/
     expire_in: 90 day
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_COMMIT_BRANCH == "dev"'
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  # only:
-  #   refs:
-  #     - main
-  #     - dev
+  only:
+    refs:
+      - main
+      - dev
 
 # Job que despliega a testing (solo manual en rama dev)
 deploy_test:
@@ -47,7 +43,7 @@ deploy_test:
       - dev
 
 move-to-final-path:
-  stage: deploy_test
+  stage: deploy_test_job
   tags:
     - GitLabRunner
   dependencies:
