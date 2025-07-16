@@ -66,7 +66,7 @@ move-to-final-path:
         echo '$ODOO_PASSWORD' | sudo -S mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
         if [ \$? -eq 0 ]; then
           echo 'Módulo movido con éxito a destino final';
-          echo '$ODOO_PASSWORD' | sudo -S rm -rf '$ODOO_DEST_PATH/temp';
+          echo '$ODOO_PASSWORD' | sudo -S rm -rf '$ODOO_DEST_PATH/temp/prueba_module';
           echo 'Carpeta temp eliminada';
         else
           echo 'Error al mover el módulo';
