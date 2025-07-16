@@ -17,7 +17,7 @@ build-job:
     expire_in: 90 day
   only:
     refs:
-      - main
+      # - main
       - dev
 
 # Job que despliega a testing (solo manual en rama dev)
@@ -53,18 +53,20 @@ deploy-production:
   environment:
     name: production
   script:
+    - echo "Desplegando a producción..."
+    - echo "Variables de entorno:"
     - ssh-keyscan -H "$ODOO_HOST" > known_hosts
-    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH"
-    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
-    - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
-      sudo -n /usr/bin/systemctl status odoo --no-pager;
-      if ! systemctl is-active --quiet odoo; then
-        echo 'Odoo NO está corriendo en producción';
-        exit 1;
-      fi"
+    - sshpass -p "$ODOO_PASSWORD" scp -r -v -o UserKnownHostsFile=known_hosts dist/prueba_module "$ODOO_USER@$ODOO_HOST:$ODOO_DEST_PATH/temp"
+    # - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "sudo -n /usr/bin/systemctl restart odoo"
+    # - sshpass -p "$ODOO_PASSWORD" ssh -tt -o StrictHostKeyChecking=no "$ODOO_USER@$ODOO_HOST" "
+    #   sudo -n /usr/bin/systemctl status odoo --no-pager;
+    #   if ! systemctl is-active --quiet odoo; then
+    #     echo 'Odoo NO está corriendo en producción';
+    #     exit 1;
+    #   fi"
   release:
     tag_name: "${CI_PROJECT_NAME}-v1.0.${CI_PIPELINE_ID}"
-    name: "Release: v1.0.$CI_PIPELINE_ID"
+    name: "Release: ${CI_PROJECT_NAME}-v1.0.${CI_PIPELINE_ID}"
     description: "Despliegue automático a staging desde el pipeline $CI_PIPELINE_ID"
     ref: "main"
     assets:
@@ -74,20 +76,6 @@ deploy-production:
   only:
     refs:
       - main
-  when: manual
 
-# Job que crea el release (solo en dev)
-# release-job:
-#   stage: release
-#   tags:
-#     - GitLabRunner
-#   dependencies:
-#     - deploy-production
-#   script:
-#     - echo "Creando release desde CI/CD"
-  
-#   only:
-#     refs:
-#       - main
 
 
