@@ -48,7 +48,10 @@ move-to-final-path:
   tags:
     - GitLabRunner
   dependencies:
-    - build-job
+    - deploy_test
+  needs:
+    - job: deploy_test
+      artifacts: true
   environment:
     name: test
   script:
@@ -61,8 +64,8 @@ move-to-final-path:
           echo 'No se encontró el módulo en temp';
           exit 1;
          fi"
-  only:
-    - schedules
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 # Job que despliega a producción (automático en rama main)
 deploy-production:
