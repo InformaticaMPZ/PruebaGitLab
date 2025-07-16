@@ -59,7 +59,7 @@ move-to-final-path:
           sudo mv '$ODOO_DEST_PATH/temp/prueba_module' '$ODOO_DEST_PATH/';
           echo 'Módulo movido con éxito a destino final';
         else
-          echo 'No se encontró el módulo en temp';
+          echo 'No se encontró el módulo en la carpeta temp';
           exit 1;
          fi"
   rules:
